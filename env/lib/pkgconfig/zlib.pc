@@ -1,0 +1,13 @@
+prefix=/Users/georgealbadr/Documents/GitHub/Cifrado_Hibrido_Avanzado/env
+exec_prefix=/Users/georgealbadr/Documents/GitHub/Cifrado_Hibrido_Avanzado/env
+libdir=/Users/georgealbadr/Documents/GitHub/Cifrado_Hibrido_Avanzado/env/lib
+sharedlibdir=/Users/georgealbadr/Documents/GitHub/Cifrado_Hibrido_Avanzado/env/lib
+includedir=/Users/georgealbadr/Documents/GitHub/Cifrado_Hibrido_Avanzado/env/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

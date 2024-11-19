@@ -1,0 +1,5 @@
+#!/Users/georgealbadr/Documents/GitHub/Cifrado_Hibrido_Avanzado/env/bin/python3.10
+
+import pydoc
+if __name__ == '__main__':
+    pydoc.cli()
