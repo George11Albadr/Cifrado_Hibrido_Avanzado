@@ -6,12 +6,35 @@ app = Flask(__name__)
 
 # Funciones de cifrado y descifrado
 def generate_key_pair(size):
-    """Genera un par de claves (pública y privada)."""
-    while True:
+    """Genera un par de claves (pública y privada) de tamaño dado."""
+    max_attempts = 100  # Limitar intentos para evitar bucles infinitos
+    attempts = 0
+
+    while attempts < max_attempts:
+        # Generar una matriz cuadrada con valores aleatorios
         public_key = np.random.randint(1, 20, (size, size))
-        if np.linalg.det(public_key) != 0:  # La matriz debe ser invertible
-            private_key = np.linalg.inv(public_key)
-            return public_key.tolist(), private_key.tolist()
+
+        # Verificar que la matriz sea invertible
+        determinant = np.linalg.det(public_key)
+        if determinant != 0:  # Si el determinante no es cero, es invertible
+            try:
+                # Calcular la inversa de la matriz pública
+                private_key = np.linalg.inv(public_key)
+
+                # Convertir a listas y retornar
+                return public_key.tolist(), private_key.tolist()
+            except np.linalg.LinAlgError:
+                # En caso de error al calcular la inversa, intentar de nuevo
+                pass
+
+        attempts += 1
+
+    # Si no se encuentra una matriz válida después de varios intentos, lanzar un error
+    raise ValueError(f"No se pudo generar una matriz invertible después de {max_attempts} intentos.")
+
+#Resultado:
+#	•	Clave Pública ( A ).
+#	•	Clave Privada ( A^{-1} ).
 
 
 def text_to_blocks(text, block_size):
@@ -25,11 +48,27 @@ def text_to_blocks(text, block_size):
     ]
     return blocks
 
+#Conversión a ASCII:
+#	•	Convierte cada carácter del texto en su valor numérico ASCII con ord(char).
+#	•	Ejemplo: "hola" → [104, 111, 108, 97].
 
 def encrypt_blocks(blocks, public_key):
     """Cifra bloques usando una clave pública."""
     public_key_matrix = np.array(public_key)
     return [np.dot(public_key_matrix, block).tolist() for block in blocks]
+
+#Si el tamaño del bloque es 4 (2 x 2), el texto "hola" se convierte en:
+
+#M =
+#104 & 111 \\
+#108 & 97  \\
+
+#Multiplicación Matricial:
+#	•	Por cada bloque  M , calcula el producto:
+
+#C = A * M
+
+#np.dot(public_key_matrix, block) realiza la multiplicación matricial con alta precisión.
 
 
 def decrypt_blocks(blocks, private_key):
@@ -44,6 +83,14 @@ def decrypt_blocks(blocks, private_key):
 
     return decrypted_blocks
 
+
+#Multiplicación con la Inversa:
+#	•	Por cada bloque cifrado  C , calcula:
+
+#M = A^{-1} * C
+
+#Como  A^{-1}  y  C  contienen valores flotantes, los resultados se redondean con np.round() 
+#se convierten a enteros con .astype(int) para evitar problemas con valores aproximados.
 
 @app.route('/')
 def index():
@@ -112,19 +159,6 @@ def decrypt_message():
         return jsonify({'error': f'Error al descifrar el mensaje: {str(e)}'}), 500
 
 
-@app.route('/random_message', methods=['GET'])
-def random_message():
-    """Obtiene una frase de programación aleatoria."""
-    try:
-        response = requests.get("https://programming-quotes-api.herokuapp.com/quotes/random", timeout=5)
-        if response.status_code == 200:
-            message = response.json().get('en', 'No se recibió contenido.')
-            return jsonify({'message': message}), 200
-        else:
-            return jsonify({'error': f'Error en la API externa: {response.status_code}'}), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f'Error de conexión con la API externa: {str(e)}'}), 500
-
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5002)

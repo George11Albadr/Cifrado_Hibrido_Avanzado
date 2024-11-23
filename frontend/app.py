@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, scrolledtext
 import requests
 
-API_URL = "http://127.0.0.1:5001"  # Dirección local del backend
+API_URL = "http://127.0.0.1:5002"  # Dirección local del backend
 
 
 class CryptographyApp:
@@ -22,10 +22,7 @@ class CryptographyApp:
         # Entrada de mensaje
         tk.Label(root, text="Ingrese el Mensaje a Cifrar o Descifrar:", font=("Arial", 12)).pack(pady=5)
         self.message_input = scrolledtext.ScrolledText(root, height=4, width=80, font=("Arial", 12))
-        self.message_input.pack(pady=5)
-
-        # Botón para obtener mensaje aleatorio
-        tk.Button(root, text="Obtener Mensaje Aleatorio", command=self.get_random_message, font=("Arial", 12)).pack(pady=5)
+        self.message_input.pack(pady=5)        
 
         # Claves
         tk.Label(root, text="Claves Generadas:", font=("Arial", 12)).pack(pady=5)
@@ -43,19 +40,6 @@ class CryptographyApp:
         tk.Button(root, text="Descifrar Mensaje", command=self.decrypt_message, font=("Arial", 12), bg="lightgreen").pack(pady=5)
         self.decrypted_label = tk.Label(root, text="Mensaje Descifrado: Ninguno aún", font=("Arial", 12), wraplength=600)
         self.decrypted_label.pack(pady=10)
-
-    def get_random_message(self):
-        """Obtiene un mensaje aleatorio desde el backend."""
-        try:
-            response = requests.get(f"{API_URL}/random_message")
-            if response.status_code == 200:
-                self.message = response.json().get('message', 'Mensaje vacío')
-                self.message_input.delete("1.0", tk.END)
-                self.message_input.insert(tk.END, self.message)
-            else:
-                raise Exception("Error al obtener el mensaje")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo obtener el mensaje aleatorio: {e}")
 
     def generate_keys(self):
         """Genera un par de claves desde el backend."""
